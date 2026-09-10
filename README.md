@@ -23,29 +23,8 @@ Promotional messages are labeled but intentionally do not proceed to the reply s
 - n8n
 - Gmail
 - Groq Chat Model
-- OpenAI-compatible GPT OSS models through Groq
 
 ## AI behavior
 
 The reply agent is configured to keep responses under 150 words, avoid inventing information, use a tone appropriate to the message category, and sign responses as **Best regards, Customer Support Team**. Promotional emails are excluded from automated replies.
 
-## Setup
-
-1. Import `gmail-ai-agent.json` into n8n.
-2. Configure Gmail credentials for the Gmail Trigger and Gmail nodes.
-3. Replace each `YOUR_GMAIL_LABEL_ID` placeholder with the appropriate Gmail label ID.
-4. Configure the Groq credentials and confirm the selected models are available in your n8n instance.
-5. Test the workflow with representative customer service, billing, urgent, promotional, Arabic, and English emails.
-6. Activate the workflow only after reviewing the generated responses.
-
-## Important considerations
-
-This workflow sends replies automatically. For production use, test it in a controlled mailbox, review classification accuracy, and consider adding a human approval step before enabling automatic delivery.
-
-## Files
-
-- `gmail-ai-agent.json` — importable n8n workflow definition.
-
-## Author
-
-[Fatma Hussein](https://github.com/fatmahussein821) — AI Automation Engineer
