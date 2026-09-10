@@ -1,0 +1,317 @@
+{
+  "name": "gmail ai agent",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {},
+        "options": {
+          "downloadAttachments": true
+        }
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -416,
+        -128
+      ],
+      "name": "Gmail Trigger"
+    },
+    {
+      "parameters": {
+        "inputText": "={{ $json.text }}",
+        "categories": {
+          "categories": [
+            {
+              "category": "customer service",
+              "description": "support, customer service, help desk, ticket, case #, inquiry, complaint, assistance, how can I help, your request, service request, CS, customer care, resolution, escalate, agent, chat support , access my account "
+            },
+            {
+              "category": "finance/billing",
+              "description": "invoice, bill, billing, payment, receipt, statement, account balance, overdue, charge, refund, transaction, credit card, bank transfer, wire, payment confirmation, invoice #, amount due, subscription fee, tax invoice"
+            },
+            {
+              "category": "high priority ",
+              "description": "urgent, ASAP, immediate, priority, critical, important, action required, time-sensitive, deadline, escalate, emergency, high priority, please respond, response needed, attention required"
+            },
+            {
+              "category": "promotion",
+              "description": "offer, discount, sale, promo, promotion, deal, coupon, free shipping, limited time, special offer, % off, save now, exclusive, newsletter, unsubscribe, marketing, campaign, flash sale"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.textClassifier",
+      "typeVersion": 1.1,
+      "position": [
+        -208,
+        -128
+      ],
+      "name": "Text Classifier"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-120b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -224,
+        96
+      ],
+      "name": "Groq Chat Model"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-20b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        448,
+        32
+      ],
+      "name": "Groq Chat Model1"
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "labelIds": [
+          "YOUR_GMAIL_LABEL_ID"
+        ]
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        144,
+        -400
+      ],
+      "name": "customer service label"
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "labelIds": [
+          "YOUR_GMAIL_LABEL_ID"
+        ]
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        144,
+        -224
+      ],
+      "name": "finance/billing label"
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "labelIds": [
+          "YOUR_GMAIL_LABEL_ID"
+        ]
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        144,
+        -64
+      ],
+      "name": "high priority label"
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "labelIds": [
+          "YOUR_GMAIL_LABEL_ID"
+        ]
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        144,
+        96
+      ],
+      "name": "promotion label"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Gmail Trigger').item.json.text }}",
+        "options": {
+          "systemMessage": "=You are a professional email assistant. Your task is to write a polite, clear, and professional reply to the incoming email.\n\nFollow these rules strictly based on the label:\n\n1. If the label is \"customer service\":\n   - Be helpful, empathetic, and solution-oriented.\n   - Acknowledge the customer's issue.\n   - Offer clear next steps or ask for more details if needed.\n   - Keep a friendly and supportive tone.\n\n2. If the label is \"finance/billing\":\n   - Be precise, formal, and professional.\n   - Focus on numbers, invoices, payments, or billing details.\n   - Avoid emotional language.\n   - Confirm any amounts or request missing information clearly.\n\n3. If the label is \"high priority\":\n   - Respond quickly and seriously.\n   - Show urgency and importance.\n   - Keep the reply short and direct.\n   - Offer immediate action or escalation if needed.\n\n4. If the label is \"promotion\":\n   - Do NOT reply to promotional emails.\n   \n\nGeneral rules:\n- Always reply in the same language as the original email (English or Arabic).\n- Keep the reply concise (maximum 150 words).\n- Do not invent information that is not in the email.\n- Sign the email as: \"Best regards, Customer Support Team\""
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        448,
+        -144
+      ],
+      "name": "Generate Email Reply"
+    },
+    {
+      "parameters": {
+        "operation": "reply",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "emailType": "text",
+        "message": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        800,
+        -144
+      ],
+      "name": "Send Email Reply"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Text Classifier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Text Classifier",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Text Classifier": {
+      "main": [
+        [
+          {
+            "node": "customer service label",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "finance/billing label",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "high priority label",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "promotion label",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Generate Email Reply",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "customer service label": {
+      "main": [
+        [
+          {
+            "node": "Generate Email Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "finance/billing label": {
+      "main": [
+        [
+          {
+            "node": "Generate Email Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "high priority label": {
+      "main": [
+        [
+          {
+            "node": "Generate Email Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "promotion label": {
+      "main": [
+        [
+          {
+            "node": "Generate Email Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Email Reply": {
+      "main": [
+        [
+          {
+            "node": "Send Email Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "nodeGroups": [],
+  "tags": []
+}
